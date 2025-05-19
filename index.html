@@ -3,11 +3,270 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tailwind Test</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <title>Facebook-style Post</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .emoji-picker {
+        display: none;
+        position: absolute;
+        bottom: 50px;
+        right: 0;
+        width: 250px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 10px;
+        z-index: 10;
+      }
+
+      .emoji-picker.show {
+        display: block;
+      }
+
+      .emoji-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+      }
+
+      .emoji {
+        font-size: 20px;
+        cursor: pointer;
+        text-align: center;
+        padding: 5px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+
+      .emoji:hover {
+        background-color: #f0f2f5;
+      }
+    </style>
   </head>
-  <body>
-    <h1 class="text-red-500 text-3xl font-bold">Hi Tailwind!</h1>
-    <script type="module" src="/src/main.js"></script>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-md w-full max-w-xl">
+      <!-- Post Header -->
+      <div class="p-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <img
+            src="https://picsum.photos/40"
+            alt="User Profile"
+            class="w-10 h-10 rounded-full mr-3"
+          />
+          <div>
+            <h3 class="font-semibold text-gray-800">John Doe</h3>
+            <div class="flex items-center">
+              <select
+                class="text-xs bg-gray-100 rounded px-2 py-1 text-gray-600 focus:outline-none"
+              >
+                <option>Public</option>
+                <option>Friends</option>
+                <option>Only me</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post Content -->
+      <div class="p-4">
+        <textarea
+          id="postTextarea"
+          placeholder="What's on your mind, John?"
+          class="w-full border-0 focus:outline-none focus:ring-0 text-gray-700 resize-none min-h-[120px] overflow-hidden"
+        ></textarea>
+
+        <!-- Attachment Preview Area -->
+        <div
+          id="attachmentPreview"
+          class="hidden flex flex-wrap gap-2 mt-2 border-t pt-3 border-gray-200"
+        >
+          <!-- Previews will be added here dynamically -->
+        </div>
+      </div>
+
+      <!-- Post Footer -->
+      <div class="p-4 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <span class="text-gray-600 text-sm">Add to your post:</span>
+          </div>
+          <div class="flex space-x-4">
+            <button
+              id="photoBtn"
+              class="text-green-500 hover:bg-gray-100 p-2 rounded-full"
+              title="Photo/Video"
+            >
+              <i class="fas fa-image"></i>
+            </button>
+            <button
+              id="tagBtn"
+              class="text-blue-500 hover:bg-gray-100 p-2 rounded-full"
+              title="Tag People"
+            >
+              <i class="fas fa-user-tag"></i>
+            </button>
+            <button
+              id="locationBtn"
+              class="text-red-500 hover:bg-gray-100 p-2 rounded-full"
+              title="Check in"
+            >
+              <i class="fas fa-map-marker-alt"></i>
+            </button>
+            <div class="relative">
+              <button
+                id="emojiBtn"
+                class="text-yellow-500 hover:bg-gray-100 p-2 rounded-full"
+                title="Feeling/Activity"
+              >
+                <i class="far fa-smile"></i>
+              </button>
+              <!-- Emoji Picker -->
+              <div id="emojiPicker" class="emoji-picker">
+                <div class="mb-2 pb-2 border-b border-gray-200">
+                  <h4 class="text-sm font-semibold text-gray-700">Emojis</h4>
+                </div>
+                <div class="emoji-grid">
+                  <div class="emoji">😀</div>
+                  <div class="emoji">😂</div>
+                  <div class="emoji">😍</div>
+                  <div class="emoji">🥰</div>
+                  <div class="emoji">😊</div>
+                  <div class="emoji">🙂</div>
+                  <div class="emoji">🤔</div>
+                  <div class="emoji">😎</div>
+                  <div class="emoji">😢</div>
+                  <div class="emoji">😡</div>
+                  <div class="emoji">👍</div>
+                  <div class="emoji">👎</div>
+                  <div class="emoji">❤️</div>
+                  <div class="emoji">🎉</div>
+                  <div class="emoji">🔥</div>
+                  <div class="emoji">💯</div>
+                  <div class="emoji">🤝</div>
+                  <div class="emoji">👏</div>
+                  <div class="emoji">🙏</div>
+                  <div class="emoji">💪</div>
+                  <div class="emoji">🌟</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post Button -->
+        <button
+          class="mt-3 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+        >
+          Post
+        </button>
+      </div>
+    </div>
+
+    <!-- File Input (Hidden) -->
+    <input type="file" id="fileInput" class="hidden" multiple />
+
+    <script>
+      // Emoji Picker Toggle
+      document
+        .getElementById("emojiBtn")
+        .addEventListener("click", function () {
+          document.getElementById("emojiPicker").classList.toggle("show");
+        });
+
+      // Close emoji picker when clicking outside
+      document.addEventListener("click", function (event) {
+        const emojiPicker = document.getElementById("emojiPicker");
+        const emojiBtn = document.getElementById("emojiBtn");
+
+        if (
+          !emojiBtn.contains(event.target) &&
+          !emojiPicker.contains(event.target)
+        ) {
+          emojiPicker.classList.remove("show");
+        }
+      });
+
+      // Add emoji to textarea
+      const emojis = document.querySelectorAll(".emoji");
+      const textarea = document.querySelector("textarea");
+
+      // Add this new function to handle textarea auto-resize
+      function autoResizeTextarea() {
+        const textarea = document.getElementById("postTextarea");
+
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = "auto";
+
+        // Set the height to match content (with a minimum height)
+        textarea.style.height = Math.max(120, textarea.scrollHeight) + "px";
+      }
+
+      // Initialize textarea height
+      window.addEventListener("load", autoResizeTextarea);
+
+      // Resize on input
+      document
+        .getElementById("postTextarea")
+        .addEventListener("input", autoResizeTextarea);
+
+      // Update emoji click handler to trigger resize after adding emoji
+      emojis.forEach((emoji) => {
+        emoji.addEventListener("click", function () {
+          textarea.value += this.textContent;
+          textarea.focus();
+          autoResizeTextarea(); // Add this line to resize after emoji insertion
+        });
+      });
+
+      // Photo attachment
+      document
+        .getElementById("photoBtn")
+        .addEventListener("click", function () {
+          document.getElementById("fileInput").click();
+        });
+
+      // Handle file selection
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", function (e) {
+          const files = e.target.files;
+          const previewArea = document.getElementById("attachmentPreview");
+
+          if (files.length > 0) {
+            previewArea.classList.remove("hidden");
+
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+
+              if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                  const preview = document.createElement("div");
+                  preview.className = "relative";
+
+                  preview.innerHTML = `
+                                <img src="${e.target.result}" class="w-20 h-20 object-cover rounded">
+                                <button class="absolute top-0 right-0 bg-gray-800 bg-opacity-50 text-white rounded-full w-5 h-5 flex items-center justify-center" onclick="this.parentNode.remove()">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            `;
+
+                  previewArea.appendChild(preview);
+                };
+
+                reader.readAsDataURL(file);
+              }
+            }
+          }
+        });
+    </script>
   </body>
 </html>
